@@ -53,4 +53,4 @@ password: Qwe123!
 
 #### This project was made for our Web Application Course and was not made for commercial use :)
 
-#### Made By Matan Avitan, Ilan Lidovski & Dotan Menachem
+#### Made By Matan Avitan(@XiRoSe), Ilan Lidovski(@ilanisme) & Dotan Menachem(@dotanme)
