@@ -164,7 +164,7 @@ namespace GameStoreMid.Controllers
                 var myjson = new TagCount { Name = _context.Tag.Where(t=>t.TagID== x.Key).FirstOrDefault().Name, Count = x.Count() };
                 mylist.Add(myjson);
             }
-            var list = mylist.OrderBy(x => x.Count).Take(10);
+            var list = mylist.OrderByDescending(x => x.Count).Take(10);
             return Json(list);
         }
     }

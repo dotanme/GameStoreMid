@@ -185,7 +185,7 @@ namespace GameStoreMid.Controllers
                 var myjson = new ProductViews { Name = x.Key,Views =x.Count()};
                 mylist.Add(myjson);
             }
-            var list = mylist.OrderBy(x => x.Views).Take(10);
+            var list = mylist.OrderByDescending(x => x.Views).Take(10);
             return Json(list);
         }
     }
