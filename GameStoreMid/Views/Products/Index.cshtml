@@ -1,0 +1,323 @@
+﻿@model IEnumerable<GameStoreMid.Models.Product>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/owl.theme.default.css">
+<link rel="stylesheet" type="text/css" href="plugins/OwlCarousel2-2.2.1/animate.css">
+
+
+<br />
+<div class="row">
+</div>
+
+<div class="row">
+    @*@using (Html.BeginForm("Index", "Products", FormMethod.Get))
+        {
+
+            @Html.DisplayText("Find by name: ")
+            <div id="searchBar" class="form-group col-sm-10">
+                <div class="inner-addon right-addon">
+                    <i class="glyphicon glyphicon-search"></i>
+                    <input type="text" name="searchString" class="form-control" value="@ViewBag.CurrentFilter" placeholder="Search" />
+                </div>
+
+            </div>
+            <button type="submit" class="btn btn-default"><span class="glyphicon"></span> Search </button>
+
+        }*@
+    <div class="col-sm-10">
+        <div class="product-grid" data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
+
+            @foreach (var item in Model)
+            {
+
+                <div class="product-item">
+                    <a href="/Products/Details/@item.ProductID">
+                        <div class="product discount product_filter">
+                            <div class="product_image">
+                                @{
+                                    if (item.ImageUrl != null)
+                                    {
+                                        string[] urls = item.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (string url in urls)
+                                        {
+                                            string fixedUrl = url;
+                                            if (!url.Contains("igdb")) // from igdb
+                                            {
+                                                fixedUrl = "~/uploads/img/" + url;
+                                            }
+                                            else
+                                            {
+                                                fixedUrl = fixedUrl.Replace("t_thumb", "t_cover_big");
+                                            }
+
+                                            <img src="@Url.Content(fixedUrl)" alt="image" class="img-rounded" width="227" height="320" />
+                                            break;
+                                        }
+                                    }
+
+                                }
+                            </div>
+                            @if (item.Deal != null)
+                            {
+                                <div class="product_bubble product_bubble_right product_bubble_red">
+                                    <span>@Html.Raw("-" + item.Deal.PercentageDiscount + "%")</span>
+                                </div>
+                            }
+
+                            <div class="product_info">
+                                <h6 class="product_name">
+                                    <a href="/Products/Details/@item.ProductID">@item.ProductName</a>
+                                </h6>
+                                <div class="product_price">
+                                    @if (item.Deal != null)
+                                    {
+                                        var dis = Convert.ToDouble(100 - item.Deal.PercentageDiscount) / 100;
+                                        var cost = Convert.ToDouble(item.Cost) * dis;
+                                        @Html.Raw(cost + "$");
+                                        <span>@Html.Raw(item.Cost + "$")</span>
+
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw(item.Cost + "$")
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="red_button add_to_cart_button">
+                        <a onclick="addToCart(@item.ProductID.ToString())">add to cart</a>
+                    </div>
+                </div>
+
+            }
+        </div>
+    </div>
+    @using (Html.BeginForm("Index", "Products", FormMethod.Get))
+    {
+        <!-- BEGIN FILTERS -->
+        <div class="col-sm-2 col">
+            <!-- BEGIN FILTER BY TAGS -->
+            <h4>@Html.Raw("Narrow by Tags: ")</h4>
+            <div class="funkyradio">
+                @{
+
+                    List<Tag> tags = ViewBag.AllTags;
+
+                    HashSet<int> tagIds = ViewBag.Tags;
+
+
+                    foreach (Tag tag in tags)
+                    {
+
+                        <label class="customcheck">
+                            <input class="custom-control-input" type="checkbox" name="tags" value="@tag.TagID" @(Html.Raw(tagIds != null && tagIds.Contains(tag.TagID) ? "checked=\"checked\"" : "")) onchange="submit()" /> @tag.Name
+                            <span class="checkmark"></span>
+                        </label>
+
+                    }
+                }
+            </div>
+            <hr />
+            <!-- END FILTER BY CATEGORY -->
+
+            <div class="padding"></div>
+
+            <!-- BEGIN FILTER BY DATE -->
+            <h4>@Html.Raw("By Release Date: ")</h4>
+            @{
+                DateTime from = ViewBag.From = ViewBag.From;
+                DateTime until = ViewBag.Until == DateTime.MinValue ? DateTime.Now : ViewBag.Until;
+                string fromValue = from.ToString("yyyy-MM-dd");
+                string untilValue = until.ToString("yyyy-MM-dd");
+            }
+
+
+            @Html.Raw("From: ")
+            <div class="form-group">
+                <div class='input-group date'>
+                    <input class="custom-control-input form-control" type="date" name="from" value="@fromValue" onchange="submit()" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            @Html.Raw("Until: ")
+            <div class="form-group">
+                <div class='input-group date'>
+                    <input class="custom-control-input form-control" type="date" name="until" value="@untilValue" onchange="submit()" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+
+            <hr />
+            <!-- END FILTER BY DATE -->
+
+            <div class="padding"></div>
+
+            <!-- BEGIN FILTER BY PRICE -->
+            @{
+                HashSet<int> prices = ViewBag.Prices;
+            }
+
+            <h4>@Html.Raw("By Price: ")</h4>
+            <div class="funkyradio">
+                <label class="customcheck">
+                    <input class="custom-control-input" type="checkbox" name="prices" value="1" @(Html.Raw(prices != null && prices.Contains(1) ? "checked=\"checked\"" : "")) onchange="submit()" /> Up to 50$
+                    <span class="checkmark"></span>
+                </label>
+                @for (int i = 51; i < 250; i += 50)
+                {
+                    <label class="customcheck">
+                        <input class="custom-control-input" type="checkbox" name="prices" value="@i.ToString()" @(Html.Raw(prices != null && prices.Contains(i) ? "checked=\"checked\"" : "")) onchange="submit()" /> @(i + "$" + " - " + (i + 49) + "$")
+                        <span class="checkmark"></span>
+                    </label>
+                }
+                <label class="customcheck">
+                    <input class="custom-control-input" type="checkbox" name="prices" value="251" @(Html.Raw(prices != null && prices.Contains(251) ? "checked=\"checked\"" : "")) onchange="submit()" /> Above 250$
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <input type="hidden" name="searchString" value="@ViewBag.CurrentFilter" />
+        </div>
+
+    }
+</div>
+
+
+
+
+
+
+
+
+@*<div class="row">
+
+
+        <h2>Index</h2>
+
+        @using (Html.BeginForm("Index", "Products", FormMethod.Get))
+        {
+
+            @Html.DisplayText("Find by name: ")
+            <div id="searchBar" class="form-group col-sm-4">
+                <div class="inner-addon right-addon">
+                    <i class="glyphicon glyphicon-search"></i>
+                    <input type="text" name="searchString" class="form-control" value="@ViewBag.CurrentFilter" placeholder="Search" />
+
+
+                </div>
+
+            </div>
+            <button type="submit" class="btn btn-default"><span class="glyphicon"></span> Search </button>
+
+        }
+    </div>
+    <div class="row">
+        <div class="col-sm-9">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.ProductName), "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.Cost), "Index", new { sortOrder = ViewBag.CostSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.TotalQuantity), "Index", new { sortOrder = ViewBag.QuantitySortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.ProductDescription), "Index", new { sortOrder = ViewBag.DescriptionSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.ReleaseDate), "Index", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ImageUrl)
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.Deal.DescriptionDiscount), "Index", new { sortOrder = ViewBag.DiscountSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr data-link="/Products/Details/@item.ProductID">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Cost)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TotalQuantity)
+                            </td>
+                            <td>
+                                @{
+                                    string x = item.ProductDescription;
+                                    x = x == null ? string.Empty : x.Substring(0, Math.Min(150, x.Length)) + "...";
+                                    @Html.DisplayFor(modelItem => x)
+                                }
+
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ReleaseDate)
+                            </td>
+                            <td>
+                                @{
+                                    if (item.ImageUrl != null)
+                                    {
+                                        string[] urls = item.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (string url in urls)
+                                        {
+                                            string fixedUrl = url;
+                                            if (!url.Contains("igdb")) // from igdb
+                                            {
+                                                fixedUrl = "~/uploads/img/" + url;
+                                            }
+
+                                            <img src="@Url.Content(fixedUrl)"  id="Pic" onerror="standby()" class="img-rounded" width="90" height="90" />
+                                            break;
+                                        }
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Deal.DescriptionDiscount)
+                            </td>
+                            <td>
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <div class="pull-right">
+                                        <button class="btn btn-sm btn-default" asp-action="Edit" asp-route-id="@item.ProductID">
+                                            <span class="glyphicon glyphicon-pencil"></span>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.ProductID">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>*@
+
+<script src="~/js/design/custom.js"></script>
+<script src="plugins/Isotope/isotope.pkgd.min.js"></script>
+<script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+<script src="plugins/easing/easing.js"></script>
+<script src="~/js/cookies.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+

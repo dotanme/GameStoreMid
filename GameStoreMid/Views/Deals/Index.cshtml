@@ -1,0 +1,184 @@
+﻿@model IEnumerable<GameStoreMid.Models.Deal>
+
+@{
+    ViewData["Title"] = "Deals";
+}
+@{
+    Layout = "/Views/Dashboard/_Layout.cshtml";
+}
+<h2>Deals</h2>
+
+<br />
+@using (Html.BeginForm("Index", "Deals", FormMethod.Get))
+{
+
+    @Html.DisplayText("Find by name: ")
+    <div id="searchBar" class="form-group col-sm-9">
+        <div class="inner-addon right-addon">
+            <i class="glyphicon glyphicon-search"></i>
+            <input type="text" name="searchString" class="form-control" placeholder="Search" />
+
+        </div>
+
+    </div>
+    <div class="col-sm-3">
+        <button type="submit" class="btn btn-default"><span class="glyphicon"></span> Search </button>
+        <button type="button" class="btn btn-success openmodal" data-toggle="modal" data-target="#CreateModal"><span class="glyphicon glyphicon-plus"></span>Create</button>
+    </div>
+
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PercentageDiscount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-link="/Deals/Details/@item.DealID">
+                <td>
+                    @Html.DisplayFor(modelItem => item.PercentageDiscount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-sm glyphicon glyphicon-pencil openmodal" data-toggle="modal" data-target="@Html.Raw("#EditModal"+item.DealID)"></button>
+                            <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash" data-toggle="modal" data-target="@Html.Raw("#DeleteModal"+item.DealID)"></button>
+                        </div>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@foreach (var item in Model)
+{
+    @*DELETE MODAL *@
+    <div class="modal fade" id="@Html.Raw("DeleteModal"+item.DealID)" tabindex="-1" role="dialog" aria-labelledby="@Html.Raw("DeleteModalLabel"+item.DealID)" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="@Html.Raw("DeleteModal"+item.DealID)">Delete Review</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="PercentageDiscount" class="col-form-label">Percentage Discount: </label> @item.PercentageDiscount
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="col-form-label">Description: </label> @item.Description
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <form action="~/Deals/Delete" method="post" id="DeleteDeal">
+                        <input type="hidden" name="id" value="@item.DealID" />
+                        <button type="button" class="btn btn" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* EDIT MODAL *@
+    <div class="modal fade" id="@Html.Raw("EditModal"+item.DealID)" tabindex="-1" role="dialog" aria-labelledby="@Html.Raw("EditModalLabel"+item.DealID)" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="@Html.Raw("EditModal"+item.DealID)">Edit Tag</h4>
+
+                </div>
+                <form asp-action="Edit">
+                    <div class="modal-body">
+                        <input type="hidden" name="DealID" value="@item.DealID" />
+                        <div class="form-group">
+                            <label for="PercentageDiscount" class="col-form-label">@Html.DisplayNameFor(model => model.PercentageDiscount): </label>
+                            <input type="text" class="form-control" name="PercentageDiscount" value="@item.PercentageDiscount" />
+                        </div>
+                        <div class="form-group">
+                            <label for="Description" class="col-form-label">@Html.DisplayNameFor(model => model.Description): </label>
+                            <textarea class="form-control textContent" name="Description" id="Description" rows="2" maxlength="30" data-val="true">@item.Description</textarea>
+                            <span class="help-block"><p id="characterLeft" class="help-block characterLeft">You have reached the limit</p></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" class="btn btn-primary" name="submit" value="Edit" UseSubmitBehavior="false" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+}
+
+@* CREAT MODAL *@
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-labelledby="CreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="CreateModal">New Deal</h4>
+
+            </div>
+            <form asp-action="Create" id="CreateDeal">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="PercentageDiscount" class="col-form-label">@Html.DisplayNameFor(model => model.PercentageDiscount)</label>
+                        <input type="text" class="form-control knob1" name="PercentageDiscount" value="0" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Description" class="col-form-label">@Html.DisplayNameFor(model => model.Description) </label>
+                        <textarea class="form-control textContent" name="Description" id="Description" rows="2" maxlength="30" data-val="true"></textarea>
+                        <span class="help-block"><p id="characterLeft" class="help-block characterLeft">You have reached the limit</p></span>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary btnSubmit" name="submit" value="Create" UseSubmitBehavior="false" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".openmodal").click(function () {
+            var modalname = $(this).attr("data-target");
+            var textarea = $(modalname + " .textContent");
+            var charLeftlabel = $(modalname + " .characterLeft");
+            var btnSubmit = $(modalname + " .btnSubmit")
+            textValidate(3, 30, textarea.get(0), charLeftlabel, btnSubmit);
+
+            textarea.keyup(function () {
+                textValidate(3, 30, textarea.get(0), charLeftlabel, btnSubmit);
+            });
+        })
+    });
+</script>

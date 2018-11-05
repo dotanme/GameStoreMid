@@ -1,0 +1,74 @@
+﻿@model IEnumerable<GameStoreMid.Models.ClientOrder>
+
+    @{
+        ViewData["Title"] = "Purchase History";
+    }
+
+    <h2>@User.Identity.Name Purchase History</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.OrderDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProductOrders)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Total)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+               
+            <tr data-link="/ClientOrders/Details/@item.OrderID">
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDate)
+                </td>
+                <td>
+                    @{
+                        List<Product> products = ViewBag.orderedProducts;
+                        foreach (var x in item.ProductOrders.ToList())
+                        {
+                            Product p = products.Select(s => s).FirstOrDefault(s => s.ProductID == x.ProductID);
+                            if (p != null)
+                            {
+                                String pName = p.ProductName.ToString();
+                                <p>@pName</p>
+                            }
+                        };
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Total)$
+                </td>
+                <td>
+                    @{
+                        if (User.IsInRole("Administrator"))
+                        {
+                            <form asp-action="Delete">
+                                <button class="btn btn-danger pull-right" asp-action="Delete" asp-route-id="@item.OrderID">Delete</button>
+                            </form>
+                        }
+                    }
+                </td>
+            </tr>
+            
+            }
+        </tbody>
+    </table>
+
+<script>
+    $(document).ready(new function () {
+        if (document.referrer.toString().split("ClientOrders/")[1] == "Create") {
+            history.pushState(null, null, 'ClientOrders/Index');
+            window.addEventListener('popstate', function (event) {
+                history.pushState(null, null, 'ClientOrders/Index');
+                alert('Can not return to order after the order was done.');
+            });
+        }
+    });
+</script>

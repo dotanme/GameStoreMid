@@ -1,0 +1,82 @@
+﻿@model IEnumerable<GameStoreMid.Models.ClientOrder>
+@{
+    Layout = "/Views/Dashboard/_Layout.cshtml";
+}
+@{
+    ViewData["Title"] = "Purchase History";
+}
+<h2>Most Recent Customers Orders</h2>
+<div id="map" style="height:380px;width:100%;"></div>
+@*<div id='dashboard'></div>*@
+
+
+@*<p>
+        <a asp-action="Create">Create New</a>
+    </p>*@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationUser.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrderDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductOrders)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Total)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            <tr data-link="/ClientOrders/Details/@item.OrderID">
+                <td>
+                    @Html.DisplayFor(modelItem => item.ApplicationUser.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDate)
+                </td>
+                <td>
+                    @{
+                        item.Total = 0;
+                        List<Product> products = ViewBag.orderedProducts;
+                        foreach (var x in item.ProductOrders.ToList())
+                        {
+                            Product p = products.Select(s => s).FirstOrDefault(s => s.ProductID == x.ProductID);
+                            if (p != null)
+                            {
+                                String pName = p.ProductName.ToString();
+                                <p>@pName</p>
+                                item.Total += p.Cost;
+                            }
+                        };
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Total)$
+                </td>
+                <td>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <div class="pull-right">
+                            <form asp-action="Delete">
+                                <button class="btn btn-danger pull-right" asp-action="Delete" asp-route-id="@item.OrderID"><span class="glyphicon glyphicon-trash"></span></button>
+                            </form>
+                        </div>
+                    }
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=@ViewData["mapskey"]&callback=initMap&v=3.31" async defer></script>
+
+<script src="~/js/maps.js" type="text/javascript"></script>

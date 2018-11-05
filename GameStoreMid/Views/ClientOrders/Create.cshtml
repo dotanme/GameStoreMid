@@ -1,0 +1,139 @@
+﻿@model GameStoreMid.Models.ClientOrder
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<link href="~/css/inovice.css" rel="stylesheet" />
+
+@using (Html.BeginForm("Create", "ClientOrders"))
+{
+    <div class="container table-bordered new-design">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="row p-5">
+                            <div class="col-md-6">
+                                <h3>GameStoreMid</h3>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <p class="font-weight-bold mb-1">Invoice #@Model.OrderID</p>
+                                <p class="text-muted">Due to: @Model.OrderDate</p>
+                            </div>
+                        </div>
+                        <hr class="my-5">
+                        <div class="row pb-5 p-5">
+                            <div class="col-md-6">
+                                <p class="font-weight-bold mb-4">Client Information</p>
+                                @{
+                                    ApplicationUser currUser = ViewBag.currUser;
+                                }
+                                <p class="mb-1">@currUser.UserName</p>
+                                <p class="mb-1">@currUser.Address.Country</p>
+                                <p class="mb-1">@currUser.Address.City</p>
+                                <p class="mb-1">@currUser.Address.Street</p>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <p class="font-weight-bold mb-4">Payment Details</p>
+                                <p class="mb-1">
+                                    <span class="text-muted">Payment Type: </span> Credit Card
+                                </p>
+                                <p class="mb-1">
+                                    <span class="text-muted">Name: </span> @currUser.UserName
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row p-5">
+                            <div class="col-md-12">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-0 text-uppercase small font-weight-bold">ID</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Product</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Quantity</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Unit Cost</th>
+                                            <th class="border-0 text-uppercase small font-weight-bold">Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @{
+                                            List<Product> products = ViewBag.products;
+                                            List<double> deals = ViewBag.deals;
+                                            double? Total = 0;
+                                            for (int i = 0, j = 0; i < products.Count(); i++)
+                                            {
+                                                double finalPrice = products[i].Cost;
+                                                int? quan = @Model.ProductOrders.FirstOrDefault(p => p.ProductID == products[i].ProductID).Quantity;
+                                                double? orgCost = finalPrice * quan;
+                                                if (products[i].DealID != null)
+                                                {
+                                                    double deal = deals[j] / 100;
+                                                    double price = products[i].Cost;
+                                                    finalPrice = price - deal * price;
+                                                    j++;
+                                                }
+                                                double? totalAmo = quan * finalPrice;
+                                                Total += totalAmo;
+                                                <input type="hidden" name="orderedProducts" value="@products[i].ProductID" />
+                                                <tr>
+                                                    <td>@products[i].ProductID</td>
+                                                    <td>@products[i].ProductName</td>
+                                                    <td>@quan</td>
+                                                    <td>$@finalPrice</td>
+                                                    <td name="selectedProducts" value="@totalAmo">$@totalAmo</td>
+                                                    <td type="hidden" name="originalCost" value="@orgCost"></td>
+                                                </tr>
+                                            }
+                                            <input type="hidden" name="Total" value="@Total" />
+                                            <input type="hidden" name="OrderDate" value="@Model.OrderDate" />
+                                            <input type="hidden" name="ExpectedDate" value="@Model.ExpectedDate" />
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <br />
+                        <br>
+                        <div class="total">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <span class="totalText">Grand Total:</span>
+                                    <span id="grandTotal" readonly="readonly"> </span>
+                                </div>
+                                <div class="col-lg-4">
+                                    <span class="totalText">Discount:</span>
+                                    <span id="disPrsnt" readonly="readonly"></span>
+                                </div>
+                                <div class="col-lg-4">
+                                    <span class="totalText"> Sub Total amount:</span>
+                                    <span id="disAmount" readonly="readonly"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <br />
+                        <div class="pull-right">
+                            @{
+                                <input type="submit" value="Approve Order" class="btn btn-success" asp-controller="ClientOrders" asp-action="Create" />
+                            }
+                        </div>
+                        <div class="pull-left">
+                            <a href='javascript:history.go(-1)' class="btn btn-default">Back to Cart</a>
+                        </div>
+
+                        <br />
+                        <br />
+                        <br />
+                        <div class="text-light mt-5 mb-5 text-center small">
+                            by :
+                            <a class="text-light" target="_blank" href="http://totoprayogo.com">totoprayogo.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script src="~/js/inovice.js"></script>

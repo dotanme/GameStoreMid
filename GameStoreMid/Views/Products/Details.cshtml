@@ -1,0 +1,685 @@
+﻿@model GameStoreMid.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<title>@Model.ProductName  Details</title>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+<link href="~/css/productDetails.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="~/css/design/single_styles.css">
+<link rel="stylesheet" type="text/css" href="~/css/design/single_responsive.css">
+
+
+@*//Start Open Graph meta tags*@
+<meta property="og:url" content="@Url.Action()" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="GameStoreMID - @Model.ProductName" />
+<meta property="og:description" content="@Model.ProductDescription" />
+<meta property="og:image" content="@Model.ImageUrl" />
+@*//End Open Graph meta tags*@
+
+<br />
+@*added~~~!*@
+<link rel="stylesheet" type="text/css" href="~/css/jquery.rateyo.css">
+<div class="container">
+    @*<div class="card">
+    *@
+    <div class="container-fluid">
+        <div class="wrapper row">
+            <div class="preview col-md-7">
+                <div class="preview-pic tab-content">
+                    @{
+                        if ((Model.ImageUrl != null) && (Model.ImageUrl.Length > 0))
+                        {
+                            int i = 1;
+                            string[] urls = Model.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                            string fixedUrl = urls[0];
+                            if (!urls[0].Contains("igdb")) // from igdb
+                            {
+                                fixedUrl = "~/uploads/img/" + urls[0];
+                            }
+                            else
+                            {
+                                fixedUrl = fixedUrl.Replace("t_thumb", "t_screenshot_med");
+                            }
+                            <div class="tab-pane active" id="pic-@i">
+                                <img src="@Url.Content(fixedUrl)" id="img-@i" />
+                            </div>
+                            foreach (string url in urls)
+                            {
+                                fixedUrl = url;
+                                if (!url.Contains("igdb")) // from igdb
+                                {
+                                    fixedUrl = "~/uploads/img/" + url;
+                                }
+                                else
+                                {
+                                    fixedUrl = fixedUrl.Replace("t_thumb", "t_screenshot_med");
+                                }
+                                <div class="tab-pane" id="pic-@i">
+                                    <img src="@Url.Content(fixedUrl)" />
+                                </div>
+                                i++;
+                            }
+                        }
+                    }
+                </div>
+                <ul class="preview-thumbnail nav nav-tabs">
+                    @{
+                        if ((Model.ImageUrl != null) && (Model.ImageUrl.Length > 0))
+                        {
+                            int i = 1;
+                            string[] urls = Model.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                            string fixedUrl;
+                            foreach (string url in urls)
+                            {
+                                fixedUrl = url;
+                                if (!url.Contains("igdb")) // from igdb
+                                {
+                                    fixedUrl = "~/uploads/img/" + url;
+                                }
+
+                                <li>
+                                    <a data-target="#pic-@i" data-toggle="tab"><img src="@fixedUrl" /></a>
+                                </li>
+                                i++;
+                            }
+                        }
+                    }
+                </ul>
+
+            </div>
+            <div class="details col-md-5 product_details">
+                <div class="product_details_title">
+                    <h2>@Html.DisplayFor(model => model.ProductName)</h2>
+                    @{
+                        var desc = Model.ProductDescription;
+                        desc = desc.Substring(0, Math.Min(150, desc.Length)) + "...";
+
+                        <p>@Html.Raw(desc)</p>
+                    }
+                </div>
+                <label for="AvgReview">  Avarage Review</label>
+                <div style="display:flex; flex-direction: row; align-items: center">
+                    <div id="AvgReview" class="ratingclassavg"></div>
+                    <span id="AvgReview"></span>
+                </div>
+                <br />
+                <div class="inlineThis">
+                    <h5>Release Date:</h5>
+                    <span> @Html.DisplayFor(model => model.ReleaseDate)</span>
+                </div>
+                <div class="free_delivery centerThis">
+                    <span class="fa fa-truck"></span>
+                    <span>Instant delivery</span>
+                </div>
+                @{
+                    if (Model.Deal != null)
+                    {
+                        double deal = Model.Deal.PercentageDiscount / 100;
+                        double price = Model.Cost;
+                        double finalPrice = price - deal * price;
+
+                        <div class="inlineThis">
+                            <h5>Offered deals: </h5>
+                            <span>@Html.DisplayFor(model => model.Deal.DescriptionDiscount)</span>
+                        </div>
+                        <div class="inlineThis">
+                            <h5>Price: </h5>
+                            <div class="product_price"> $@finalPrice</div>
+                            <div class="original_price">$@Html.DisplayFor(model => model.Cost)</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="inlineThis">
+                            <h5>Price: </h5>
+                            <div class="product_price">$@Html.DisplayFor(model => model.Cost)</div>
+                        </div>
+                    }
+                }
+                <br />
+                <div class="row">
+                    <div class="red_button review_submit_btn trans_500">
+                        <a href="#" onclick="addToCart(@Model.ProductID.ToString())">add to cart</a>
+                    </div>
+                    <div class="pull-right">
+                        @*added by matan*@
+                        @{
+                            <button id="shareBtn" style="width:170px;height:42px;" class="btn btn-facebook btn-sm text-center" onclick="shareBtn()"><i class="fa fa-facebook fa-2"></i> | Share on Facebook</button>
+                        }
+                        @*'till here*@
+                        <input id="pName" type="hidden" value="@Model.ProductName">
+                        <input id="pDesc" type="hidden" value="@Model.ProductDescription">
+
+                        <script>
+                            window.fbAsyncInit = function () {
+                                FB.init({
+                                    appId: @ViewData["appid"],
+                                    autoLogAppEvents: true,
+                                    xfbml: true,
+                                    version: 'v3.1'
+                                });
+                            };
+
+                            (function (d, s, id) {
+                                var js, fjs = d.getElementsByTagName(s)[0];
+                                if (d.getElementById(id)) { return; }
+                                js = d.createElement(s); js.id = id;
+                                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                                fjs.parentNode.insertBefore(js, fjs);
+                            }(document, 'script', 'facebook-jssdk'));
+
+
+
+                            function shareBtn() {
+                                var pName = $('#pName').val().toString();
+                                var pDesc = $('#pDesc').val().toString();
+                                var pImg = "https:" + $("img#img-1").attr("src").toString();
+                                var content = 'I  would like to recommend a new game called ' + pName + 'ive seen at www.GameStoreMID.com, the game is about ' + pDesc;
+                                FB.ui({
+                                    method: 'share',
+                                    display: 'popup',
+                                    quote: content,
+                                    href: pImg,
+                                }, function (response) { });
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+<div class="tabs_section_container">
+
+    <div class="container">
+        <div class="row">
+            <div class="centerThis">
+                <div class="tabs_container">
+                    <ul class="tabs d-flex flex-sm-row flex-column align-items-left align-items-md-center justify-content-center list-inline">
+                        <li class="tab active" data-active-tab="tab_1">
+                            <span>Description</span>
+                        </li>
+                        <li class="tab" data-active-tab="tab_2">
+                            <span>Trailers</span>
+                        </li>
+                        <li class="tab" data-active-tab="tab_3">
+                            <span>Reviews</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+
+                <!-- Tab Description -->
+
+                <div id="tab_1" class="tab_container active">
+                    <div class="row">
+                        <div class="col desc_col">
+                            <div class="tab_title">
+                                <h4>Description</h4>
+                            </div>
+                            <div class="tab_text_block">
+                                <h2>Summary</h2>
+                                <p>@Html.DisplayFor(model => model.ProductDescription)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Trailers -->
+
+                <div id="tab_2" class="tab_container">
+                    <div class="row">
+                        <div class="col additional_info_col">
+                            <div class="tab_title additional_info_title">
+                                <h4>Trailers</h4>
+                            </div>
+                            <p>
+                                @{
+                                    List<string> videos = ViewBag.Videos;
+                                    int index = 1;
+                                    if (videos != null && videos.Count > 0)
+                                    {
+                                        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                                            <!-- Indicators -->
+                                            <ol class="carousel-indicators">
+                                                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                                                @foreach (string video in videos)
+                                                {
+                                                    <li data-target="#myCarousel" data-slide-to="@index"></li>
+                                                    index++;
+                                                }
+                                            </ol>
+
+                                            <!-- Wrapper for slides -->
+                                            <div class="carousel-inner">
+                                                <div class="item active">
+                                                    <iframe width="800" height="600" style="width:100%;top:0;left:0;" src="@videos[0]" frameborder="0" allowfullscreen></iframe>
+                                                </div>
+
+                                                @for (int inde = 1; inde < videos.Count; inde++)
+                                                {
+                                                    <div class="item">
+                                                        <iframe width="800" height="600" style="width:100%;top:0;left:0;" src="@videos[inde]" frameborder="0" allowfullscreen></iframe>
+
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <!-- Left and right controls -->
+                                            <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                                                <span class="glyphicon glyphicon-chevron-left"></span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                            <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                                                <span class="glyphicon glyphicon-chevron-right"></span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        </div>
+
+                                    }
+                                }
+
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Reviews -->
+
+                <div id="tab_3" class="tab_container">
+                    <div class="row">
+                        <!-- User Reviews -->
+
+                        <div class="reviews_col">
+                            <div class="tab_title reviews_title">
+                                <h4 class="ReviewCount"></h4>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <button type="button" class="red_button review_submit_btn trans_300 openmodal pull-right" data-toggle="modal" data-target="#CreateReviewModal">Create a review</button>
+                                }
+                            </div>
+                            <!-- User Review -->
+
+                            <div class="reviews_col">
+                                @if (Model.Reviews != null)
+                                {
+                                    List<ApplicationUser> appusers = ViewBag.ApplicationUsers;
+
+                                    @foreach (var item in Model.Reviews)
+                                    {
+                                        <div class="user_review_container d-flex flex-column flex-sm-row">
+                                            <div class="review">
+                                                @{ string userName = string.Empty;
+                                                    foreach (ApplicationUser user in appusers)
+                                                    {
+                                                        if (user.Id == item.ApplicationUserID)
+                                                        {
+                                                            userName = user.UserName;
+                                                            break;
+                                                        }
+
+                                                    }
+                                                }
+                                                <div style="display:flex; flex-direction: row; align-items: center">
+                                                    <div class="user_name">@Html.Raw(userName) - </div>
+                                                    <input type="hidden" id="@Html.Raw("yoRating" + item.ReviewID)" class="ratingclass ratingdisplay" value="@item.Rate" />
+                                                    <div id="@Html.Raw("yoRating" + item.ReviewID)" class="ratingclass user_name"></div>
+                                                </div>
+                                                <div class="review_date">@Html.DisplayFor(modelItem => item.PostDate)</div>
+                                                <p>@Html.DisplayFor(modelItem => item.Content)</p>
+
+                                                @if (User.Identity.Name == item.ApplicationUser.UserName || User.IsInRole("Administrator"))
+                                                {
+                                                    <button type="button" class="btn btn-sm glyphicon glyphicon-pencil openmodal" data-toggle="modal" data-target="@Html.Raw("#EditReviewModal"+item.ReviewID)"></button>
+                                                    <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash" data-toggle="modal" data-target="@Html.Raw("#DeleteReviewModal"+item.ReviewID)"></button>
+
+                                                    @*DELETE REVIEW *@
+
+                                                    <div class="modal fade" id="@Html.Raw("DeleteReviewModal"+item.ReviewID)" tabindex="-1" role="dialog" aria-labelledby="@Html.Raw("DeleteReviewModalLabel"+item.ReviewID)" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                    <h4 class="modal-title" id="@Html.Raw("DeleteReviewModal"+item.ReviewID)">Delete Review</h4>
+
+                                                                </div>
+                                                                <div class="modal-body">
+
+                                                                    <div class="form-group">
+                                                                        <label for="applicationuserid" class="col-form-label">User Name: </label> @item.ApplicationUser.UserName
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="ProductID" class="col-form-label">Product: </label> @item.Product.ProductName
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <div style="display:flex; flex-direction: row; align-items: center">
+                                                                            <label for="rate" class="col-form-label">Rate: </label>
+                                                                            <input type="hidden" id="@Html.Raw("yoRatingDelete" + item.ReviewID)" class="ratingclass" value="@item.Rate" />
+                                                                            <div id="@Html.Raw("yoRatingDelete" + item.ReviewID)" class="ratingclass"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-group">
+                                                                        <label for="content" class="col-form-label">Content: </label> @item.Content
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+
+                                                                    <form action="~/Reviews/Delete" method="post">
+                                                                        <input type="hidden" name="ReviewID" value="@item.ReviewID" />
+                                                                        <button type="button" class="btn btn" data-dismiss="modal">Close</button>
+                                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    @*EDIT REVIEW *@
+                                                    <div class="modal fade" id="@Html.Raw("EditReviewModal"+item.ReviewID)" tabindex="-1" role="dialog" aria-labelledby="@Html.Raw("EditReviewModal"+item.ReviewID+"Label")" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                    <h4 class="modal-title" id="@Html.Raw("EditReviewModal"+item.ReviewID)">Edit Review</h4>
+
+                                                                </div>
+                                                                <form action="~/Reviews/Edit" method="post">
+                                                                    <div class="modal-body">
+                                                                        <div class="form-group">
+                                                                            <label for="applicationuserid" class="col-form-label">User Name: </label> @item.ApplicationUser.UserName
+                                                                            <input type="hidden" class="form-control" name="ApplicationUserID" id="ApplicationUserID" value="@item.ApplicationUserID" />
+
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label for="ProductID" class="col-form-label">Product: </label> @item.Product.ProductName
+                                                                            <input type="hidden" class="form-control" name="ProductID" id="ProductID" value="@item.Product.ProductID" />
+                                                                        </div>
+
+                                                                        <div class="form-group">
+                                                                            <div style="display:flex; flex-direction: row; align-items: center">
+                                                                                <label for="rate" class="col-form-label">Rate: </label>
+                                                                                <input type="hidden" name="rate" id="@Html.Raw("yoRatingEdit" + item.ReviewID)" value="@item.Rate" class="ratingclassedit" />
+                                                                                <div id="@Html.Raw("yoRatingEdit" + item.ReviewID)" class="ratingclassedit"></div>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label for="content" class="col-form-label">Content</label>
+                                                                                <textarea class="form-control textContent" name="content" rows="7" maxlength="300">@item.Content</textarea>
+                                                                                <span class="help-block">
+                                                                                    <p id="characterLeft" class="help-block characterLeft">You have reached the limit</p>
+                                                                                </span>
+                                                                            </div>
+                                                                            <input type="hidden" name="ReviewID" value="@item.ReviewID" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                        <input type="submit" class="btn btn-primary btnSubmit" name="submit" value="Confirm Edit" UseSubmitBehavior="false" />
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                    }
+
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* CREAT MODAL *@
+<div class="modal fade" id="CreateReviewModal" tabindex="-1" role="dialog" aria-labelledby="CreateReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="CreateReviewModal">New Review</h4>
+
+            </div>
+            <form action="~/Reviews/Create" method="post" id="new_review">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="applicationuserid" class="col-form-label">User Name:</label> @User.Identity.Name
+                    </div>
+                    <div class="form-group">
+                        <label for="ProductID" class="col-form-label">Product: </label> @Html.DisplayFor(model => model.ProductName)
+                        <input type="hidden" class="form-control" name="ProductID" id="ProductID" value="@Html.DisplayFor(model => model.ProductID)" />
+                    </div>
+                    <div class="form-group">
+                        <div style="display:flex; flex-direction: row; align-items: center">
+                            <label for="rate" class="col-form-label">Rate: </label>
+                            <input type="hidden" name="rate" id="CreateRate" class="ratingclassedit" value="1" />
+                            <div id="yoCreateRate" class="ratingclassedit"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content" class="col-form-label">Content</label>
+                        <textarea class="form-control textContent" name="content" rows="7" maxlength="300"></textarea>
+                        <span class="help-block">
+                            <p id="characterLeft" class="help-block characterLeft">You have reached the limit</p>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary btnSubmit" name="submit" value="Create Review" UseSubmitBehavior="false" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@*YOU MAY ALSO LIKE*@
+@{
+    List<Product> products = ViewBag.SimilarItems;
+    if (products != null)
+    {
+        <i>
+            <h3 class="heading-third section-title text-center">YOU MAY ALSO LIKE</h3>
+        </i>
+
+        <br />
+        <!-- Best Sellers -->
+        <div class="product-grid centerThis">
+
+
+            @foreach (var item in products)
+            {
+
+                <div class="product-item">
+                    <a href="/Products/Details/@item.ProductID">
+                        <div class="product discount product_filter">
+                            <div class="product_image">
+                                @{
+                                    if (item.ImageUrl != null)
+                                    {
+                                        string[] urls = item.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                                        foreach (string url in urls)
+                                        {
+                                            string fixedUrl = url;
+                                            if (!url.Contains("igdb")) // from igdb
+                                            {
+                                                fixedUrl = "~/uploads/img/" + url;
+                                            }
+                                            else
+                                            {
+                                                fixedUrl = fixedUrl.Replace("t_thumb", "t_cover_big");
+                                            }
+
+                                            <img src="@Url.Content(fixedUrl)" alt="image" class="img-rounded" width="227" height="320" />
+                                            break;
+                                        }
+                                    }
+
+                                }
+                            </div>
+                            @if (item.Deal != null)
+                            {
+                                <div class="product_bubble product_bubble_right product_bubble_red">
+                                    <span>@Html.Raw("-" + item.Deal.PercentageDiscount + "%")</span>
+                                </div>
+                            }
+
+                            <div class="product_info">
+                                <h6 class="product_name">
+                                    <a href="/Products/Details/@item.ProductID">@item.ProductName</a>
+                                </h6>
+                                <div class="product_price">
+                                    @if (item.Deal != null)
+                                    {
+                                        var dis = Convert.ToDouble(100 - item.Deal.PercentageDiscount) / 100;
+                                        var cost = Convert.ToDouble(item.Cost) * dis;
+                                        @Html.Raw(cost + "$");
+                                        <span>@Html.Raw(item.Cost + "$")</span>
+
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw(item.Cost + "$")
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="red_button add_to_cart_button">
+                        <a onclick="addToCart(@item.ProductID.ToString())">add to cart</a>
+                    </div>
+                </div>
+
+            }
+        </div>
+
+    }
+}
+
+<div class="centerThis">
+    <a asp-action="Index">
+        <i>
+            <h4 class="btn-link heading-third section-title text-center">BACK TO LIST</h4>
+        </i>
+    </a>
+</div>
+<script src="~/js/BrowsingHistory.js" type="text/javascript"></script>
+<script src="~/js/jquery.rateyo.js" type="text/javascript"></script>
+<script src="~/js/cookies.js"></script>
+<script src="~/plugins/Isotope/isotope.pkgd.min.js"></script>
+<script src="~/plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+<script src="~/plugins/easing/easing.js"></script>
+<script src="~/plugins/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+<script src="~/js/design/single_custom.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script type="text/javascript">
+
+    //Display the rating for readyonly
+    $("input.ratingclass").each(function (index, obj) {
+        var id = "#" + obj.id;
+        $("div " + id).rateYo({
+            rating: obj.value,
+            starWidth: "20px",
+            readOnly: true,
+            fullStar: true,
+        });
+
+    });
+
+    //create defulte rating or Create Review modal
+    $("#yoCreateRate").rateYo({
+        rating: 1,
+        starWidth: "20px",
+        fullStar: true,
+    });
+
+    $("#yoCreateRate").rateYo()
+        .on("rateyo.change", function (e, data) {
+            var rating = data.rating;
+            $('#CreateRate').attr('value', data.rating)
+        });
+    //Display rating with editing
+    $("input.ratingclassedit").each(function (index, obj) {
+        var id = "#" + obj.id
+        $("div " + id).rateYo({
+            rating: obj.value,
+            starWidth: "20px",
+            fullStar: true,
+        });
+        $("div " + id).rateYo().on("rateyo.change", function (e, data) {
+            var rating = data.rating;
+            $("input" + id).attr('value', data.rating)
+        });
+    });
+
+    //create average review
+    $(function () {
+        var sum = 0;
+        var count = 0;
+        var average = 0;
+
+        $("input.ratingdisplay").each(function (index, obj) {
+            sum = sum + Number(obj.value);
+            count++;
+        });
+        if (count != 0) {
+            average = sum / count;
+            average = Number(average.toFixed(1));
+        }
+        $("div#AvgReview").rateYo({
+            rating: average,
+            starWidth: "20px",
+            readOnly: true
+        });
+        if (count != 0) {
+            $("span#AvgReview").text(" - " + average + " Stars with " + count + " Reviews");
+            $(".ReviewCount").text("Reviews(" + count + ")");
+        }
+    });
+    $(document).ready(function () {
+        $('.carousel').carousel({
+            interval: 90000
+        });
+        $(".openmodal").click(function () {
+            var modalname = $(this).attr("data-target");
+            var textarea = $(modalname + " .textContent");
+            var charLeftlabel = $(modalname + " .characterLeft");
+            var btnSubmit = $(modalname + " .btnSubmit")
+            textValidate(6, 300, textarea.get(0), charLeftlabel, btnSubmit);
+
+            textarea.keyup(function () {
+                textValidate(6, 300, textarea.get(0), charLeftlabel, btnSubmit);
+            });
+        })
+    });
+
+</script>
+
+

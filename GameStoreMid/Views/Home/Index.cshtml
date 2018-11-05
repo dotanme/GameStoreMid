@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    @{
+        List<Product> products = ViewBag.bestsellers;
+        if (products != null)
+        {
+            <i><h3 class="heading-third section-title text-center">BEST SELLERS</h3></i>
+
+            <br />
+            <!-- Best Sellers -->
+            <div class="product-grid centerThis" data-add-back-btn data-isotope='{ "itemSelector": ".product-item", "layoutMode": "fitRows" }'>
+
+                @foreach (var item in products)
+                {
+
+                    <div class="product-item">
+                        <a href="/Products/Details/@item.ProductID">
+                            <div class="product discount product_filter">
+                                <div class="product_image">
+                                    @{
+                                        if (item.ImageUrl != null)
+                                        {
+                                            string[] urls = item.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                                            foreach (string url in urls)
+                                            {
+                                                string fixedUrl = url;
+                                                if (!url.Contains("igdb")) // from igdb
+                                                {
+                                                    fixedUrl = "~/uploads/img/" + url;
+                                                }
+                                                else
+                                                {
+                                                    fixedUrl = fixedUrl.Replace("t_thumb", "t_cover_big");
+                                                }
+
+                                                <img src="@Url.Content(fixedUrl)" alt="image" class="img-rounded" width="227" height="320" />
+                                                break;
+                                            }
+                                        }
+
+                                    }
+                                </div>
+                                @if (item.Deal != null)
+                                {
+                                    <div class="product_bubble product_bubble_right product_bubble_red">
+                                        <span>@Html.Raw("-" + item.Deal.PercentageDiscount + "%")</span>
+                                    </div>
+                                }
+
+                                <div class="product_info">
+                                    <h6 class="product_name">
+                                        <a href="/Products/Details/@item.ProductID">@item.ProductName</a>
+                                    </h6>
+                                    <div class="product_price">
+                                        @if (item.Deal != null)
+                                        {
+                                            var dis = Convert.ToDouble(100 - item.Deal.PercentageDiscount) / 100;
+                                            var cost = Convert.ToDouble(item.Cost) * dis;
+                                            @Html.Raw(cost + "$");
+                                            <span>@Html.Raw(item.Cost + "$")</span>
+
+                                        }
+                                        else
+                                        {
+                                            @Html.Raw(item.Cost + "$")
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="red_button add_to_cart_button">
+                            <a onclick="addToCart(@item.ProductID.ToString())">add to cart</a>
+                        </div>
+                    </div>
+
+                }
+            </div>
+
+        }
+    }
+</div>
+
+<script src="~/js/design/custom.js"></script>
+<script src="plugins/Isotope/isotope.pkgd.min.js"></script>
+<script src="plugins/OwlCarousel2-2.2.1/owl.carousel.js"></script>
+<script src="plugins/easing/easing.js"></script>
+<script src="~/js/cookies.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>

@@ -1,0 +1,29 @@
+﻿@model Product
+<div class="form-group">
+    <div class="table-responsive">
+        <table class="table">
+            <label asp-for="ProductTags" class="control-label"></label>
+            @{
+                int cnt = 0;
+                List<Tag> tags = ViewBag.Tag;
+                HashSet<int> markedTags = ViewBag.MarkedTag;
+                foreach (var tag in tags)
+                {
+                    if (cnt++ % 3 == 0)
+                    {
+                        @:<tr>
+                    }
+                    
+                               <td>
+                                   <label class="customcheck">
+                                       <input class="custom-control-input" type="checkbox" name="tags" value="@tag.TagID" @(Html.Raw(markedTags != null && markedTags.Contains(tag.TagID) ? "checked=\"checked\"" : "")) /> @tag.Name
+                                       <span class="checkmark"></span>
+                                   </label>
+                               </td>
+                    @:
+                }
+                @:</tr>
+            }
+        </table>
+    </div>
+</div>

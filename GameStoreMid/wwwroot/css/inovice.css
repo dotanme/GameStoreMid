@@ -1,0 +1,39 @@
+﻿body {
+    margin-top: 120px;
+    margin-bottom: 120px;
+}
+.new-design {
+    padding: 15px 30px 15px 30px;
+}
+.total {
+    text-align-last: center;
+    font-family: Aharoni;
+    background-color: #1e1d1d;
+    padding: 20px 0px 20px 0px;
+    border-radius: 5px;
+    color: whitesmoke;
+}
+
+.backspace {
+    margin-left: 50px;
+}
+
+#grandTotal, #disAmount, #disPrsnt {
+    margin: 0;
+    height: 20px;
+    padding: 0;
+    color: whitesmoke;
+    background: none;
+    box-shadow: none;
+    font-size: 35px;
+    border: 0;
+}
+
+
+div.total span.totalText {
+    font-size: 35px;
+}
+
+div.total div div >*{
+    width:100%;
+}

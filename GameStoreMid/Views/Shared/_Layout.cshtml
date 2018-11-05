@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GameStoreMid</title>
+
+    <environment include="Development">
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" type="text/css" href="~/css/design/main_styles.css">
+        <link rel="stylesheet" type="text/css" href="~/css/design/responsive.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="~/css/site.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
+    </environment>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid" style="margin: 0 40px 0 30px;">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">GameStoreMid</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    @*<li>
+                            <a asp-area="" asp-controller="Home" asp-action="About">About</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>*@
+                    <li>
+                        <a asp-area="" asp-controller="Products" asp-action="Index">Products</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-controller="ClientOrders" asp-action="Index">My Orders</a>
+                    </li>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <li>
+                            <a asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                        </li>
+                    }
+                </ul>
+                <div class="col-sm-3 col-md-3">
+                    @using (Html.BeginForm("Index", "Products", FormMethod.Get, new { @class = "navbar-form" }))
+                    {
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="searchString" value="@ViewBag.CurrentFilter" placeholder="Search">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    }
+                </div>
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+        </div>
+    </nav>
+    @if (ViewData["Title"] == "Home Page")
+    {
+        <div class="main_slider" style="background-image:url(images/slider_1.jpg)">
+            <div class="container fill_height">
+                <div class="row align-items-center fill_height">
+                    <div class="col">
+                        <div class="main_slider_content">
+                            <h6>The best digital gaming store</h6>
+                            <h1>Welcome to GameStoreMid</h1>
+                            <div class="red_button shop_now_button">
+                                <a href="/Products">shop now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="body-content">
+        @RenderBody()
+    </div>
+    <hr />
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="cr centerThis">
+                        <span> &copy; 2018 - GameStoreMid -Made By </span><a href="#"> M</a>atan Avitan, <a href="#"> I</a>lan Lidovski & <a href="#"> D</a>otan Menachem ©2018 All Rights Reserverd.
+                    </div>
+                    <div class="cr centerThis">
+                        Template by <a href="#"> Colorlib</a>.
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="fb-like" data-href="https://www.facebook.com/Game-Store-MID-712565209088407" data-layout="standard" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
+                </div>
+            </div>
+        </div>
+</footer>
+
+
+    <environment include="Development">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/cookies.js" asp-append-version="true"></script>
+
+    </environment>
+    <environment exclude="Development">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+<div id="fb-root"></div>
+<script>
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/he_IL/sdk.js#xfbml=1&version=v3.1&appId=@Startup.SettingFactory()["Authentication:Facebook:AppId"]';
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>

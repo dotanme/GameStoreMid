@@ -1,0 +1,152 @@
+﻿@model GameStoreMid.Models.Product
+
+
+@{
+    ViewData["Title"] = "Your Cart";
+}
+
+<!------ Include the above in your HEAD tag ---------->
+<link rel="stylesheet" href="~/css/Cart.css" />
+<div class="container">
+    <div class="row centerThis" style="padding:10px 0;">
+        <h2><span class="glyphicon glyphicon-shopping-cart"></span> Shopping Cart</h2>
+    </div>
+    <div class="row">
+        @{
+            Product[] products = ViewBag.products.ToArray();
+            @foreach (var product in products)
+            {
+                string fixedUrl = "";
+                string[] urls = product.ImageUrl.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                if (urls.Length > 0)
+                {
+                    fixedUrl = urls[0];
+                    if (!urls[0].Contains("igdb")) // from igdb
+                    {
+                        fixedUrl = "~/uploads/img/" + urls[0];
+                    }
+                    else
+                    {
+                        fixedUrl = fixedUrl.Replace("t_thumb", "t_cover_big");
+                    }
+                }
+                <div class="row" style="padding:10px 0;">
+                    <div class="col-lg-2 col-md-6 col-sm-6">
+                        <img class="img-responsive" src=@Url.Content(fixedUrl) id="Pic" onerror="standby()">
+                    </div>
+                    <div class="col-lg-10 col-md-6 col-sm-6">
+                        <div class="row centerme">
+                            <div class="col-lg-7">
+                                <h4 class=@product.ProductName>
+                                    <strong>@product.ProductName</strong>
+                                </h4>
+                            </div>
+                            @{
+                                double finalPrice = product.Cost;
+                                if (product.Deal != null)
+                                {
+                                    double deal = product.Deal.PercentageDiscount / 100;
+                                    double price = product.Cost;
+                                    finalPrice = price - deal * price;
+                                }
+                            }
+                            <div class="col-lg-5 centerThis">
+                                <div name="selectedProducts" id="@finalPrice">
+                                    <h4>
+                                        <strong>Price: $@finalPrice</strong>
+                                    </h4>
+                                </div>
+                                @*plus and minus object*@
+                                <div class="">
+                                    <div class="center">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-number" disabled="disabled" data-type="minus" data-field="@product.ProductID">
+                                                    <span class="glyphicon glyphicon-minus"></span>
+                                                </button>
+                                            </span>
+                                            <input type="text" name="@product.ProductID" class="form-control input-number text-right quantity" value="1" min="1" max="10" onchange="totalIt()">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="@product.ProductID">
+                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-danger glyphicon glyphicon-trash" onclick="removeFromCart(@product.ProductID)"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <hr />
+    <div class="row">
+        <div class="col-lg-8 centerThis" style="margin-top: 20px;margin-bottom: 10px;">
+            @{
+                <div class="normal_button review_submit_btn trans_300">
+                    <a href='javascript:history.go(-1)' class="">Back</a>
+                </div>
+                bool check = ViewBag.havingAddress;
+                if (check)
+                {
+                    <div class="red_button review_submit_btn trans_300">
+                        <a href="#" class="btn" id="checkOut" onclick="quantity(); checkOut()">Proceed To Checkout</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="red_button review_submit_btn trans_300">
+                        <a href="#" class="btn" id="checkOut" data-toggle="modal" data-target="#CreateModal">Proceed To Checkout</a>
+                    </div>
+                }
+            }
+
+        </div>
+        <div class="col-lg-4 centerThis">
+            <h3>Overall Price:</h3> <span id="cartTotal" readonly="readonly"> </span>
+        </div>
+
+    </div>
+</div>
+<script src="~/js/cookies.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="~/js/cart.js"></script>
+
+@* EDIT MODAL *@
+<div class="modal fade" id="CreateModal" tabindex="-1" role="dialog" aria-labelledby="CreateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="CreateModal">Please fill in your address to applay an order.</h4>
+
+            </div>
+            <form asp-action="UpdateAddress">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name" class="col-form-label">Country:</label>
+                        <input type="text" class="form-control" name="country" />
+                        <label for="name" class="col-form-label">City:</label>
+                        <input type="text" class="form-control" name="city" />
+                        <label for="name" class="col-form-label">Street:</label>
+                        <input type="text" class="form-control" name="street" />
+                        <label for="name" class="col-form-label">Zip-Code:</label>
+                        <input type="number" class="form-control" onkeypress="validateZip()" onchange="validateZipAlert()" name="zipCode" id="zipCode" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" name="submit" value="Edit" UseSubmitBehavior="false" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

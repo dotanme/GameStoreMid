@@ -1,0 +1,28 @@
+﻿
+span#cartTotal {
+    border: 0;
+    box-shadow: none;
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+/*quantity buttons*/
+.center {
+    width: 120px;
+
+}
+
+div.centerThis > *{
+    padding: 0 7px;
+}
+
+div.cr.centerThis > * {
+    padding: 0 0;
+}
+div.centerme {
+    padding:7% 0;
+}
+
+div.review_submit_btn {
+    margin:3px;
+}

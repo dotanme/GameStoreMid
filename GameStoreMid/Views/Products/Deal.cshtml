@@ -1,0 +1,6 @@
+﻿@model GameStoreMid.Models.Product
+
+<label asp-for="Deal" class="control-label"></label>
+<div class="form-group">
+    @Html.DropDownListFor(model => model.DealID, (SelectList)ViewBag.DealsID, "Select Deal", new { id = "DealID", @class = "btn btn-default dropdown-toggle" })
+</div>

@@ -1,0 +1,192 @@
+﻿@model IEnumerable<GameStoreMid.Models.Product>
+@{
+    Layout = "/Views/Dashboard/_Layout.cshtml";
+}
+@{
+    ViewData["Title"] = "AdminIndex";
+}
+<div class="row">
+    <h2>Products</h2>
+    @*<link href="~/css/charts.css" rel="stylesheet">*@
+    <link href="~/css/barchart.css" rel="stylesheet">
+
+    <h3>Most Viewed Products</h3>
+    <div id='mostviewsproducts'></div>
+    @*<div id='dashboard'></div>*@
+</div>
+    <br />
+    <div class="row">
+        @using (Html.BeginForm("AdminIndex", "Products", FormMethod.Get))
+        {
+
+            @Html.DisplayText("Find by name: ")
+            <div id="searchBar2" class="form-group col-sm-9">
+                <div class="inner-addon right-addon">
+                    <i class="glyphicon glyphicon-search"></i>
+                    <input type="text" name="searchString" class="form-control" value="@ViewBag.CurrentFilter" placeholder="Search" />
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" class="btn btn-default"><span class="glyphicon"></span> Search </button>
+                <button asp-action="Create" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Create</button>
+
+            </div>
+
+        }
+        <div class="col-sm-10">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.ProductName), "AdminIndex", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.Cost), "AdminIndex", new { sortOrder = ViewBag.CostSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.TotalQuantity), "AdminIndex", new { sortOrder = ViewBag.QuantitySortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.ReleaseDate), "AdminIndex", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th>
+                            @Html.ActionLink(Html.DisplayNameFor(model => model.Deal.DescriptionDiscount), "AdminIndex", new { sortOrder = ViewBag.DiscountSortParm, currentFilter = ViewBag.CurrentFilter, from = ViewBag.From, until = ViewBag.Until, prices = ViewBag.Prices, tags = ViewBag.Tags })
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr data-link="/Products/Details/@item.ProductID">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ProductName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Cost)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TotalQuantity)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ReleaseDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Deal.DescriptionDiscount)
+                            </td>
+                            <td>
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <div class="pull-right">
+                                        <button class="btn btn-sm btn-default" asp-action="Edit" asp-route-id="@item.ProductID">
+                                            <span class="glyphicon glyphicon-pencil"></span>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.ProductID">
+                                            <span class="glyphicon glyphicon-trash"></span>
+                                        </button>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @using (Html.BeginForm("AdminIndex", "Products", FormMethod.Get))
+        {
+            <!-- BEGIN FILTERS -->
+            <div class="col-sm-2 col">
+                <hr>
+
+                <!-- BEGIN FILTER BY TAGS -->
+                <h4>@Html.Raw("By Tags: ")</h4>
+                <div class="funkyradio">
+                    @{
+
+                        List<Tag> tags = ViewBag.AllTags;
+
+                        HashSet<int> tagIds = ViewBag.Tags;
+
+
+                        foreach (Tag tag in tags)
+                        {
+
+                            <label class="customcheck">
+                                <input class="custom-control-input" type="checkbox" name="tags" value="@tag.TagID" @(Html.Raw(tagIds != null && tagIds.Contains(tag.TagID) ? "checked=\"checked\"" : "")) onchange="submit()" /> @tag.Name
+                                <span class="checkmark"></span>
+                            </label>
+
+                        }
+                    }
+                </div>
+                <!-- END FILTER BY CATEGORY -->
+
+                <div class="padding"></div>
+
+                <!-- BEGIN FILTER BY DATE -->
+                <h4>@Html.Raw("By Release Date: ")</h4>
+                @{
+                    DateTime from = ViewBag.From = ViewBag.From;
+                    DateTime until = ViewBag.Until == DateTime.MinValue ? DateTime.Now : ViewBag.Until;
+                    string fromValue = from.ToString("yyyy-MM-dd");
+                    string untilValue = until.ToString("yyyy-MM-dd");
+                }
+
+
+                @Html.Raw("From: ")
+                <div class="form-group">
+                    <div class='input-group date'>
+                        <input class="custom-control-input form-control" type="date" name="from" value="@fromValue" onchange="submit()" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                @Html.Raw("Until: ")
+                <div class="form-group">
+                    <div class='input-group date'>
+                        <input class="custom-control-input form-control" type="date" name="until" value="@untilValue" onchange="submit()" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+
+
+                <!-- END FILTER BY DATE -->
+
+                <div class="padding"></div>
+
+                <!-- BEGIN FILTER BY PRICE -->
+                @{
+                    HashSet<int> prices = ViewBag.Prices;
+                }
+
+                <h4>@Html.Raw("By Price: ")</h4>
+                <div class="funkyradio">
+                    <label class="customcheck">
+                        <input class="custom-control-input" type="checkbox" name="prices" value="1" @(Html.Raw(prices != null && prices.Contains(1) ? "checked=\"checked\"" : "")) onchange="submit()" /> Up to 50$
+                        <span class="checkmark"></span>
+                    </label>
+                    @for (int i = 51; i < 250; i += 50)
+                    {
+                        <label class="customcheck">
+                            <input class="custom-control-input" type="checkbox" name="prices" value="@i.ToString()" @(Html.Raw(prices != null && prices.Contains(i) ? "checked=\"checked\"" : "")) onchange="submit()" /> @(i + "$" + " - " + (i + 49) + "$")
+                            <span class="checkmark"></span>
+                        </label>
+                    }
+                    <label class="customcheck">
+                        <input class="custom-control-input" type="checkbox" name="prices" value="251" @(Html.Raw(prices != null && prices.Contains(251) ? "checked=\"checked\"" : "")) onchange="submit()" /> Above 250$
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <input type="hidden" name="searchString" value="@ViewBag.CurrentFilter" />
+            </div>
+        }
+    </div>
+
+<!-- Graphs -->
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="https://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="~/js/barchart.js" type="text/javascript"></script>

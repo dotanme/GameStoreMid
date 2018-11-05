@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/dashboard.css" rel="stylesheet">
+
+
+<div class="row">
+    <nav class="col-md-2 col-lg-2 bg-light sidebar border-right hidden-sm hidden-xs pull-left">
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+               <li class="nav-item">
+                    <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                        <span data-feather="home"></span>
+                        Dashboard <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="" asp-controller="ClientOrders" asp-action="AdminIndex" class="nav-link">
+                        <span data-feather="file"></span>
+                        Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="" asp-controller="Products" asp-action="AdminIndex" class="nav-link">
+                        <span data-feather="shopping-cart"></span>
+                        Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="" asp-controller="ApplicationUsers" asp-action="Index" class="nav-link">
+                        <span data-feather="users"></span>
+                        Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="" asp-controller="Tags" asp-action="Index" class="nav-link">
+                        <span data-feather="tag"></span>
+                        Tags
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="" asp-controller="Deals" asp-action="Index" class="nav-link">
+                        <span data-feather="percent"></span>
+                        Deals
+                    </a>
+                </li>
+                @*<li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <span data-feather="bar-chart-2"></span>
+                        Reports(In Progress)
+                    </a>
+                </li>*@
+            </ul>
+
+            @*<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                <span>Saved reports</span>
+                <a class="d-flex align-items-center text-muted" href="#">
+                    <span data-feather="plus-circle"></span>
+                </a>
+            </h6>
+            <ul class="nav flex-column mb-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <span data-feather="file-text"></span>
+                        Place Holder
+                    </a>
+                </li>
+            </ul>*@
+        </div>
+    </nav>
+    <div class="col-md-10 col-lg-10 pull-right">
+        @RenderBody()
+    </div>
+</div>
+
+
+
+<!-- Icons -->
+<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        // Get current path and find target link
+        var path = window.location.pathname.split("/")[1];
+        // Account for home page with empty path
+        if (path == 'ClientOrders') {
+            path = 'ClientOrders/AdminIndex';
+        }
+        if (path == 'Products') {
+            path = 'Products/AdminIndex';
+        }
+        var target = $('nav a[href="/' + path + '"]');
+        // Add active class to target link
+        target.addClass('active');
+    });
+</script>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

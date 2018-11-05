@@ -1,0 +1,97 @@
+﻿@model GameStoreMid.Models.Product
+@{
+    Layout = "/Views/Dashboard/_Layout.cshtml";
+}
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProductID" />
+            <div class="form-group">
+                <label asp-for="ProductName" class="control-label"></label>
+                <input asp-for="ProductName" class="form-control" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Cost" class="control-label"></label>
+                <input asp-for="Cost" class="form-control" />
+                <span asp-validation-for="Cost" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TotalQuantity" class="control-label"></label>
+                <input asp-for="TotalQuantity" class="form-control" />
+                <span asp-validation-for="TotalQuantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductDescription" class="control-label"></label>
+                <input asp-for="ProductDescription" class="form-control" />
+                <span asp-validation-for="ProductDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReleaseDate" class="control-label"></label>
+                <input asp-for="ReleaseDate" class="form-control" />
+                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+            @{await Html.RenderPartialAsync("Deal"); }
+
+            <div class="form-group">
+                <label asp-for="ImageUrl" class="control-label"></label>
+                <input asp-for="ImageUrl" class="from-control" hidden />
+                <input class="custom-control-input" type="text" hidden name="pathsToDelete" value="" />
+
+                @{
+                    List<string> paths = ViewBag.Images;
+                    foreach (string path in paths)
+                    {
+                        string fixedUrl = path;
+                        if (!path.Contains("igdb")) // from igdb
+                        {
+                            fixedUrl = "~/uploads/img/" + path;
+                        }
+                        <div>
+                            <button type="button" class="close" aria-label="Close" onclick="Delete(this, '@path');">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <img src="@Url.Content(fixedUrl)"id="Pic" onerror="standby()" class="img-rounded" width="90" height="90" />
+                        </div>
+
+                    }
+                }
+                <input type="file" name="files" multiple accept="image/*" class="form-control" style="height:auto" />
+
+            </div>
+            @{await Html.RenderPartialAsync("Tag");}
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+
+    function Delete(This, path) {
+
+        var val = $("[name='pathsToDelete']").val();
+        $("[name='pathsToDelete']").val(val + path + ",");
+
+        $(This).parent().remove();
+
+    }
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
