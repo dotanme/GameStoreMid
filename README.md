@@ -38,15 +38,15 @@ user: mid@mid.com
 password: Qwe123!
 ```
 ## Pictures
-![Landing Page](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics//main.jpg)
+![Landing Page](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/main.JPG)
 ![Best Sellers](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/bestsellers.JPG)
 
-![Product Page](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics//products.jpg)
+![Product Page](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/products.JPG)
 
-![Similar graph](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics//similargraph.jpg)
+![Similar graph](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/similargraph.JPG)
 
-![Most Viewed Graph](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics//mostviewed.jpg)
-![Products Management](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics//prodcutspanel.jpg)
+![Most Viewed Graph](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/mostviewed.JPG)
+![Products Management](https://raw.githubusercontent.com/dotanme/GameStoreMid/master/readmepics/prodcutspanel.JPG)
 
 
 
